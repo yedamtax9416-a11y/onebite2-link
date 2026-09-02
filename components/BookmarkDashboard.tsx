@@ -26,7 +26,7 @@ export default function BookmarkDashboard() {
         selectedFolderId={selectedFolderId}
         onSelectFolder={setSelectedFolderId}
       />
-      <main className="flex flex-1 flex-col overflow-y-auto bg-zinc-50">
+      <main className="bg-mesh flex flex-1 flex-col overflow-y-auto">
         <LinkGrid links={filteredLinks} />
       </main>
     </div>

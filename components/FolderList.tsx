@@ -13,7 +13,7 @@ export default function FolderList({
 }: FolderListProps) {
   return (
     <nav className="mt-2 flex flex-col gap-1">
-      <p className="px-3 pb-1 text-xs font-semibold tracking-wide text-zinc-400">
+      <p className="px-3 pb-1 text-xs font-bold uppercase tracking-wider text-zinc-400">
         폴더
       </p>
       {folders.map((folder) => {
@@ -23,14 +23,14 @@ export default function FolderList({
             key={folder.id}
             type="button"
             onClick={() => onSelectFolder(folder.id)}
-            className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+            className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
               isSelected
-                ? "bg-zinc-900 text-white"
-                : "text-zinc-700 hover:bg-zinc-100"
+                ? "gradient-bg text-white shadow-md shadow-indigo-500/30"
+                : "text-zinc-600 hover:bg-zinc-100"
             }`}
           >
             <span className="truncate">{folder.name}</span>
-            <span className={isSelected ? "text-zinc-300" : "text-zinc-400"}>
+            <span className={isSelected ? "text-white/80" : "text-zinc-400"}>
               {folder.count}
             </span>
           </button>

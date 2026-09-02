@@ -19,18 +19,24 @@ export default function Sidebar({
   const isAllSelected = selectedFolderId === null;
 
   return (
-    <aside className="flex w-56 shrink-0 flex-col gap-1 border-r border-zinc-200 bg-white p-4">
+    <aside className="flex w-60 shrink-0 flex-col gap-1 border-r border-zinc-200/70 bg-white p-4 shadow-[1px_0_0_0_rgba(0,0,0,0.02)]">
       <button
         type="button"
         onClick={() => onSelectFolder(null)}
-        className={`flex items-center justify-between rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+        className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-sm font-semibold transition-all ${
           isAllSelected
-            ? "bg-zinc-900 text-white"
-            : "text-zinc-700 hover:bg-zinc-100"
+            ? "gradient-bg text-white shadow-md shadow-indigo-500/30"
+            : "text-zinc-600 hover:bg-zinc-100"
         }`}
       >
         <span>전체</span>
-        <span className={isAllSelected ? "text-zinc-300" : "text-zinc-400"}>
+        <span
+          className={
+            isAllSelected
+              ? "text-white/80"
+              : "text-zinc-400"
+          }
+        >
           {totalCount}
         </span>
       </button>

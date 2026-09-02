@@ -18,7 +18,7 @@ export default function NewLinkView() {
         selectedFolderId={selectedFolderId}
         onSelectFolder={setSelectedFolderId}
       />
-      <main className="flex flex-1 flex-col items-center overflow-y-auto bg-zinc-50">
+      <main className="bg-mesh flex flex-1 flex-col items-center overflow-y-auto py-10">
         <NewLinkForm folders={folders} />
       </main>
     </div>
