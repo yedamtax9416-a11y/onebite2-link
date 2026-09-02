@@ -1,11 +1,11 @@
 import Header from "@/components/Header";
-import BookmarkDashboard from "@/components/BookmarkDashboard";
+import NewLinkView from "@/components/NewLinkView";
 
-export default function Home() {
+export default function NewLinkPage() {
   return (
     <div className="flex h-full flex-col bg-white">
       <Header />
-      <BookmarkDashboard />
+      <NewLinkView />
     </div>
   );
 }
