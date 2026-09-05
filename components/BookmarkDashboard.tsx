@@ -3,9 +3,11 @@
 import { useMemo, useState } from "react";
 import Sidebar from "./Sidebar";
 import LinkGrid from "./LinkGrid";
-import { folders, links } from "./mock-data";
+import { links } from "./mock-data";
+import { useFolders } from "./FolderContext";
 
 export default function BookmarkDashboard() {
+  const { folders } = useFolders();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(
     null
   );
