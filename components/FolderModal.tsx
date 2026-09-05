@@ -2,18 +2,26 @@
 
 import { useState } from "react";
 
-type NewFolderModalProps = {
+type FolderModalProps = {
   isOpen: boolean;
-  onClose: () => void;
+  title: string;
+  description: string;
+  initialName?: string;
+  submitLabel?: string;
   onSave: (name: string) => void;
+  onClose: () => void;
 };
 
-export default function NewFolderModal({
+export default function FolderModal({
   isOpen,
-  onClose,
+  title,
+  description,
+  initialName = "",
+  submitLabel = "저장",
   onSave,
-}: NewFolderModalProps) {
-  const [name, setName] = useState("");
+  onClose,
+}: FolderModalProps) {
+  const [name, setName] = useState(initialName);
 
   if (!isOpen) return null;
 
@@ -38,12 +46,8 @@ export default function NewFolderModal({
         className="flex w-full max-w-sm flex-col gap-5 rounded-2xl border border-zinc-200/70 bg-white p-6 shadow-xl shadow-zinc-900/10"
       >
         <div>
-          <h2 className="gradient-text text-lg font-extrabold">
-            새 폴더 만들기
-          </h2>
-          <p className="mt-1 text-xs text-zinc-400">
-            폴더 이름을 입력하세요.
-          </p>
+          <h2 className="gradient-text text-lg font-extrabold">{title}</h2>
+          <p className="mt-1 text-xs text-zinc-400">{description}</p>
         </div>
 
         <div className="flex flex-col gap-2">
@@ -80,7 +84,7 @@ export default function NewFolderModal({
             onClick={handleSave}
             className="gradient-bg rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40"
           >
-            저장
+            {submitLabel}
           </button>
         </div>
       </div>

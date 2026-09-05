@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import NewFolderModal from "./NewFolderModal";
+import FolderModal from "./FolderModal";
 import { useFolders } from "./FolderContext";
 
 export default function Header() {
@@ -38,8 +38,10 @@ export default function Header() {
           </Link>
         </div>
       </header>
-      <NewFolderModal
+      <FolderModal
         isOpen={isFolderModalOpen}
+        title="새 폴더 만들기"
+        description="폴더 이름을 입력하세요."
         onClose={() => setIsFolderModalOpen(false)}
         onSave={(name) => {
           addFolder(name);
