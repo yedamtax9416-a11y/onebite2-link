@@ -25,9 +25,11 @@ function getGradient(seed: string) {
 export default function LinkCard({
   link,
   onEdit,
+  onDelete,
 }: {
   link: LinkItem;
   onEdit: (link: LinkItem) => void;
+  onDelete: (link: LinkItem) => void;
 }) {
   const hostname = getHostname(link.url);
 
@@ -38,29 +40,55 @@ export default function LinkCard({
       rel="noopener noreferrer"
       className="group relative flex flex-col overflow-hidden rounded-2xl border border-zinc-200/70 bg-white shadow-sm shadow-zinc-200/50 transition-all hover:-translate-y-1 hover:border-transparent hover:shadow-xl hover:shadow-indigo-500/15"
     >
-      <button
-        type="button"
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          onEdit(link);
-        }}
-        aria-label={`${link.title || hostname} 링크 수정`}
-        className="absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-lg bg-white/90 text-zinc-500 opacity-0 shadow-sm transition-opacity hover:bg-white hover:text-zinc-700 group-hover:opacity-100"
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.75}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="h-4 w-4"
+      <div className="absolute right-2 top-2 z-10 flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onEdit(link);
+          }}
+          aria-label={`${link.title || hostname} 링크 수정`}
+          className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/90 text-zinc-500 shadow-sm transition-colors hover:bg-white hover:text-zinc-700"
         >
-          <path d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
-        </svg>
-      </button>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+          >
+            <path d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onDelete(link);
+          }}
+          aria-label={`${link.title || hostname} 링크 삭제`}
+          className="flex h-7 w-7 items-center justify-center rounded-lg bg-white/90 text-zinc-500 shadow-sm transition-colors hover:bg-red-50 hover:text-red-500"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-4 w-4"
+          >
+            <path d="M6 7h12M9.5 7V5.5A1.5 1.5 0 0 1 11 4h2a1.5 1.5 0 0 1 1.5 1.5V7m-7.5 0 .6 12.03A2 2 0 0 0 10.09 21h3.82a2 2 0 0 0 1.99-1.97L16.5 7" />
+            <path d="M10 11v6M14 11v6" />
+          </svg>
+        </button>
+      </div>
       <div
         className={`flex h-32 items-center justify-center bg-gradient-to-br text-3xl font-bold text-white/90 ${getGradient(
           hostname

@@ -23,6 +23,7 @@ type LinkContextValue = {
   isUpdatingLink: boolean;
   addLink: (url: string, folderId: string | null) => Promise<void>;
   updateLink: (id: string, updates: LinkUpdates) => Promise<void>;
+  removeLink: (id: string) => Promise<void>;
 };
 
 const LinkContext = createContext<LinkContextValue | null>(null);
@@ -164,9 +165,27 @@ export function LinkProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const removeLink = async (id: string) => {
+    const { error } = await supabase.from("links").delete().eq("id", id);
+
+    if (error) {
+      console.error("링크를 삭제하지 못했습니다.", error);
+      return;
+    }
+
+    setLinks((prev) => prev.filter((link) => link.id !== id));
+  };
+
   return (
     <LinkContext.Provider
-      value={{ links, isAddingLink, isUpdatingLink, addLink, updateLink }}
+      value={{
+        links,
+        isAddingLink,
+        isUpdatingLink,
+        addLink,
+        updateLink,
+        removeLink,
+      }}
     >
       {children}
     </LinkContext.Provider>
