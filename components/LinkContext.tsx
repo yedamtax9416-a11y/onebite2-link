@@ -10,10 +10,19 @@ import {
 import type { LinkItem } from "./types";
 import { supabase } from "@/lib/supabase";
 
+type LinkUpdates = {
+  url: string;
+  title: string | null;
+  description: string | null;
+  folderId: string | null;
+};
+
 type LinkContextValue = {
   links: LinkItem[];
   isAddingLink: boolean;
+  isUpdatingLink: boolean;
   addLink: (url: string, folderId: string | null) => Promise<void>;
+  updateLink: (id: string, updates: LinkUpdates) => Promise<void>;
 };
 
 const LinkContext = createContext<LinkContextValue | null>(null);
@@ -42,6 +51,7 @@ async function fetchLinkPreview(url: string): Promise<LinkPreview> {
 export function LinkProvider({ children }: { children: ReactNode }) {
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [isAddingLink, setIsAddingLink] = useState(false);
+  const [isUpdatingLink, setIsUpdatingLink] = useState(false);
 
   useEffect(() => {
     const loadLinks = async () => {
@@ -111,8 +121,53 @@ export function LinkProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const updateLink = async (id: string, updates: LinkUpdates) => {
+    const trimmedUrl = updates.url.trim();
+    if (!trimmedUrl || isUpdatingLink) return;
+
+    setIsUpdatingLink(true);
+    try {
+      const { data, error } = await supabase
+        .from("links")
+        .update({
+          url: trimmedUrl,
+          title: updates.title,
+          description: updates.description,
+          folder_id: updates.folderId ? Number(updates.folderId) : null,
+        })
+        .eq("id", id)
+        .select("id, title, url, description, folder_id, created_at")
+        .single();
+
+      if (error || !data) {
+        console.error("링크를 수정하지 못했습니다.", error);
+        return;
+      }
+
+      setLinks((prev) =>
+        prev.map((link) =>
+          link.id === id
+            ? {
+                id: String(data.id),
+                title: data.title,
+                url: data.url,
+                description: data.description,
+                folderId:
+                  data.folder_id === null ? null : String(data.folder_id),
+                createdAt: data.created_at,
+              }
+            : link
+        )
+      );
+    } finally {
+      setIsUpdatingLink(false);
+    }
+  };
+
   return (
-    <LinkContext.Provider value={{ links, isAddingLink, addLink }}>
+    <LinkContext.Provider
+      value={{ links, isAddingLink, isUpdatingLink, addLink, updateLink }}
+    >
       {children}
     </LinkContext.Provider>
   );
