@@ -8,7 +8,8 @@ type FolderModalProps = {
   description: string;
   initialName?: string;
   submitLabel?: string;
-  onSave: (name: string) => void;
+  isSaving?: boolean;
+  onSave: (name: string) => void | Promise<void>;
   onClose: () => void;
 };
 
@@ -18,6 +19,7 @@ export default function FolderModal({
   description,
   initialName = "",
   submitLabel = "저장",
+  isSaving = false,
   onSave,
   onClose,
 }: FolderModalProps) {
@@ -31,7 +33,7 @@ export default function FolderModal({
   };
 
   const handleSave = () => {
-    if (!name.trim()) return;
+    if (!name.trim() || isSaving) return;
     onSave(name);
     setName("");
   };
@@ -82,9 +84,10 @@ export default function FolderModal({
           <button
             type="button"
             onClick={handleSave}
-            className="gradient-bg rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40"
+            disabled={isSaving}
+            className="gradient-bg rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md"
           >
-            {submitLabel}
+            {isSaving ? "저장 중..." : submitLabel}
           </button>
         </div>
       </div>

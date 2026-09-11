@@ -1,12 +1,19 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 import type { Folder } from "./types";
-import { folders as initialFolders } from "./mock-data";
+import { supabase } from "@/lib/supabase";
 
 type FolderContextValue = {
   folders: Folder[];
-  addFolder: (name: string) => void;
+  isAddingFolder: boolean;
+  addFolder: (name: string) => Promise<void>;
   renameFolder: (id: string, name: string) => void;
   removeFolder: (id: string) => void;
 };
@@ -14,15 +21,57 @@ type FolderContextValue = {
 const FolderContext = createContext<FolderContextValue | null>(null);
 
 export function FolderProvider({ children }: { children: ReactNode }) {
-  const [folders, setFolders] = useState<Folder[]>(initialFolders);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [isAddingFolder, setIsAddingFolder] = useState(false);
 
-  const addFolder = (name: string) => {
+  useEffect(() => {
+    const loadFolders = async () => {
+      const { data, error } = await supabase
+        .from("folders")
+        .select("id, name")
+        .order("id", { ascending: true });
+
+      if (error) {
+        console.error("폴더 목록을 불러오지 못했습니다.", error);
+        return;
+      }
+
+      setFolders(
+        data.map((folder) => ({
+          id: String(folder.id),
+          name: folder.name,
+          count: 0,
+        }))
+      );
+    };
+
+    loadFolders();
+  }, []);
+
+  const addFolder = async (name: string) => {
     const trimmed = name.trim();
-    if (!trimmed) return;
-    setFolders((prev) => [
-      ...prev,
-      { id: crypto.randomUUID(), name: trimmed, count: 0 },
-    ]);
+    if (!trimmed || isAddingFolder) return;
+
+    setIsAddingFolder(true);
+    try {
+      const { data, error } = await supabase
+        .from("folders")
+        .insert({ name: trimmed })
+        .select("id, name")
+        .single();
+
+      if (error || !data) {
+        console.error("폴더를 추가하지 못했습니다.", error);
+        return;
+      }
+
+      setFolders((prev) => [
+        ...prev,
+        { id: String(data.id), name: data.name, count: 0 },
+      ]);
+    } finally {
+      setIsAddingFolder(false);
+    }
   };
 
   const renameFolder = (id: string, name: string) => {
@@ -41,7 +90,13 @@ export function FolderProvider({ children }: { children: ReactNode }) {
 
   return (
     <FolderContext.Provider
-      value={{ folders, addFolder, renameFolder, removeFolder }}
+      value={{
+        folders,
+        isAddingFolder,
+        addFolder,
+        renameFolder,
+        removeFolder,
+      }}
     >
       {children}
     </FolderContext.Provider>

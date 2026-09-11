@@ -7,7 +7,7 @@ import { useFolders } from "./FolderContext";
 
 export default function Header() {
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
-  const { addFolder } = useFolders();
+  const { addFolder, isAddingFolder } = useFolders();
 
   return (
     <>
@@ -42,9 +42,10 @@ export default function Header() {
         isOpen={isFolderModalOpen}
         title="새 폴더 만들기"
         description="폴더 이름을 입력하세요."
+        isSaving={isAddingFolder}
         onClose={() => setIsFolderModalOpen(false)}
-        onSave={(name) => {
-          addFolder(name);
+        onSave={async (name) => {
+          await addFolder(name);
           setIsFolderModalOpen(false);
         }}
       />
