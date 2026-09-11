@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { FolderProvider } from "@/components/FolderContext";
+import { LinkProvider } from "@/components/LinkContext";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -25,7 +26,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <FolderProvider>{children}</FolderProvider>
+        <FolderProvider>
+          <LinkProvider>{children}</LinkProvider>
+        </FolderProvider>
       </body>
     </html>
   );

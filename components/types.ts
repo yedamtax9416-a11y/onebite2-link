@@ -6,9 +6,9 @@ export type Folder = {
 
 export type LinkItem = {
   id: string;
-  title: string;
+  title: string | null;
   url: string;
-  description?: string;
-  folderId: string;
+  description?: string | null;
+  folderId: string | null;
   createdAt: string;
 };

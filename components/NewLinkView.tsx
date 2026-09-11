@@ -3,11 +3,12 @@
 import { useState } from "react";
 import Sidebar from "./Sidebar";
 import NewLinkForm from "./NewLinkForm";
-import { links } from "./mock-data";
 import { useFolders } from "./FolderContext";
+import { useLinks } from "./LinkContext";
 
 export default function NewLinkView() {
   const { folders } = useFolders();
+  const { links } = useLinks();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(
     null
   );

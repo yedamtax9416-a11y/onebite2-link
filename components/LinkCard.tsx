@@ -41,7 +41,7 @@ export default function LinkCard({ link }: { link: LinkItem }) {
       </div>
       <div className="flex flex-1 flex-col gap-1 p-4">
         <h3 className="line-clamp-1 text-sm font-semibold text-zinc-900 group-hover:gradient-text">
-          {link.title}
+          {link.title || hostname}
         </h3>
         {link.description && (
           <p className="line-clamp-2 text-xs text-zinc-500">

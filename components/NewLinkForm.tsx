@@ -1,19 +1,31 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Folder } from "./types";
+import { useLinks } from "./LinkContext";
 
 type NewLinkFormProps = {
   folders: Folder[];
 };
 
 export default function NewLinkForm({ folders }: NewLinkFormProps) {
+  const router = useRouter();
+  const { addLink, isAddingLink } = useLinks();
   const [url, setUrl] = useState("");
   const [folderId, setFolderId] = useState("");
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!url.trim() || isAddingLink) return;
+
+    await addLink(url, folderId || null);
+    router.push("/");
+  };
+
   return (
     <form
-      onSubmit={(e) => e.preventDefault()}
+      onSubmit={handleSubmit}
       className="flex w-full max-w-lg flex-col gap-5 rounded-2xl border border-zinc-200/70 bg-white p-8 shadow-xl shadow-zinc-200/60"
     >
       <div>
@@ -64,9 +76,10 @@ export default function NewLinkForm({ folders }: NewLinkFormProps) {
 
       <button
         type="submit"
-        className="gradient-bg mt-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40"
+        disabled={isAddingLink}
+        className="gradient-bg mt-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md"
       >
-        저장
+        {isAddingLink ? "저장 중..." : "저장"}
       </button>
     </form>
   );

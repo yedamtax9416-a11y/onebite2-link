@@ -3,11 +3,12 @@
 import { useMemo, useState } from "react";
 import Sidebar from "./Sidebar";
 import LinkGrid from "./LinkGrid";
-import { links } from "./mock-data";
 import { useFolders } from "./FolderContext";
+import { useLinks } from "./LinkContext";
 
 export default function BookmarkDashboard() {
   const { folders } = useFolders();
+  const { links } = useLinks();
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(
     null
   );
@@ -17,7 +18,7 @@ export default function BookmarkDashboard() {
       selectedFolderId === null
         ? links
         : links.filter((link) => link.folderId === selectedFolderId),
-    [selectedFolderId]
+    [links, selectedFolderId]
   );
 
   return (
