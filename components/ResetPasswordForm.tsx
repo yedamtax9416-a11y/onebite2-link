@@ -7,41 +7,44 @@ import { supabase } from "@/lib/supabase";
 import Toast from "./Toast";
 
 function toKoreanErrorMessage(message: string) {
-  if (/invalid login credentials/i.test(message)) {
-    return "이메일 또는 비밀번호가 올바르지 않습니다.";
+  if (/password should be at least|password.*short/i.test(message)) {
+    return "비밀번호는 6자 이상이어야 합니다.";
   }
-  if (/email not confirmed/i.test(message)) {
-    return "이메일 인증이 완료되지 않았습니다.";
+  if (/auth session missing/i.test(message)) {
+    return "재설정 링크가 만료되었거나 올바르지 않습니다. 다시 요청해주세요.";
   }
-  return "로그인에 실패했습니다. 다시 시도해주세요.";
+  return "비밀번호 재설정에 실패했습니다. 다시 시도해주세요.";
 }
 
-export default function LoginForm() {
+export default function ResetPasswordForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const canSubmit = email.trim() !== "" && password !== "";
+  const canSubmit = password !== "" && passwordConfirm !== "";
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!canSubmit || isSubmitting) return;
 
+    if (password !== passwordConfirm) {
+      setErrorMessage("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      const { error } = await supabase.auth.updateUser({ password });
 
       if (error) {
         setErrorMessage(toKoreanErrorMessage(error.message));
         return;
       }
 
-      router.push("/");
+      await supabase.auth.signOut();
+      router.push("/login");
     } finally {
       setIsSubmitting(false);
     }
@@ -66,34 +69,34 @@ export default function LoginForm() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="login-email"
+              htmlFor="reset-password"
               className="text-sm font-semibold text-zinc-700"
             >
-              이메일
+              새 비밀번호
             </label>
             <input
-              id="login-email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
+              id="reset-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="새 비밀번호를 입력하세요"
               className="rounded-xl border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 outline-none transition-colors focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15"
             />
           </div>
 
           <div className="flex flex-col gap-2">
             <label
-              htmlFor="login-password"
+              htmlFor="reset-password-confirm"
               className="text-sm font-semibold text-zinc-700"
             >
-              비밀번호
+              새 비밀번호 확인
             </label>
             <input
-              id="login-password"
+              id="reset-password-confirm"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="비밀번호를 입력하세요"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              placeholder="새 비밀번호를 다시 입력하세요"
               className="rounded-xl border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 outline-none transition-colors focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/15"
             />
           </div>
@@ -104,27 +107,8 @@ export default function LoginForm() {
           disabled={!canSubmit || isSubmitting}
           className="gradient-bg rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md"
         >
-          {isSubmitting ? "로그인 중..." : "로그인"}
+          {isSubmitting ? "변경 중..." : "비밀번호 재설정"}
         </button>
-
-        <p className="text-center text-xs text-zinc-400">
-          <Link
-            href="/forgot-password"
-            className="font-semibold text-indigo-600 hover:underline"
-          >
-            비밀번호를 잊으셨나요?
-          </Link>
-        </p>
-
-        <p className="text-center text-xs text-zinc-400">
-          아직 계정이 없으신가요?{" "}
-          <Link
-            href="/signup"
-            className="font-semibold text-indigo-600 hover:underline"
-          >
-            회원가입
-          </Link>
-        </p>
       </form>
     </>
   );
