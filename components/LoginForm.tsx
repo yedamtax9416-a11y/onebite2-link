@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
@@ -21,6 +22,7 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isKakaoSubmitting, setIsKakaoSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const canSubmit = email.trim() !== "" && password !== "";
@@ -44,6 +46,28 @@ export default function LoginForm() {
       router.push("/");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleKakaoLogin = async () => {
+    if (isKakaoSubmitting) return;
+
+    setIsKakaoSubmitting(true);
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "kakao",
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
+      });
+
+      if (error) {
+        setErrorMessage("카카오 로그인에 실패했습니다. 다시 시도해주세요.");
+        setIsKakaoSubmitting(false);
+      }
+    } catch {
+      setErrorMessage("카카오 로그인에 실패했습니다. 다시 시도해주세요.");
+      setIsKakaoSubmitting(false);
     }
   };
 
@@ -105,6 +129,28 @@ export default function LoginForm() {
           className="gradient-bg rounded-full px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-indigo-500/30 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/40 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-md"
         >
           {isSubmitting ? "로그인 중..." : "로그인"}
+        </button>
+
+        <div className="flex items-center gap-3 text-xs text-zinc-400">
+          <span className="h-px flex-1 bg-zinc-200" />
+          또는
+          <span className="h-px flex-1 bg-zinc-200" />
+        </div>
+
+        <button
+          type="button"
+          onClick={handleKakaoLogin}
+          disabled={isKakaoSubmitting}
+          className="relative overflow-hidden rounded-xl shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          <Image
+            src="/kakao_login_medium_wide.png"
+            alt="카카오 로그인"
+            width={300}
+            height={45}
+            className="h-auto w-full"
+            priority
+          />
         </button>
 
         <p className="text-center text-xs text-zinc-400">

@@ -29,6 +29,9 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|login|signup|forgot-password|reset-password).*)",
+    // The trailing `.*\..*` excludes any path with a file extension (e.g.
+    // public/ assets like kakao_login_medium_wide.png), which would
+    // otherwise be redirected to /login before the browser can load them.
+    "/((?!api|_next/static|_next/image|favicon.ico|login|signup|forgot-password|reset-password|.*\\..*).*)",
   ],
 };
