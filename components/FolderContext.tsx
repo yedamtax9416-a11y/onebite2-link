@@ -23,14 +23,50 @@ const FolderContext = createContext<FolderContextValue | null>(null);
 export function FolderProvider({ children }: { children: ReactNode }) {
   const [folders, setFolders] = useState<Folder[]>([]);
   const [isAddingFolder, setIsAddingFolder] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Track the logged-in user so a login/logout/account switch is reflected
+  // below without a full page reload.
   useEffect(() => {
+    let isMounted = true;
+
+    const applyUser = (nextUserId: string | null) => {
+      if (!isMounted) return;
+      setUserId((prev) => (prev === nextUserId ? prev : nextUserId));
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      applyUser(session?.user.id ?? null);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        applyUser(session?.user?.id ?? null);
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Reload from scratch every time the current user changes (login, logout,
+  // or switching accounts), scoped to that user's own data only.
+  useEffect(() => {
+    setFolders([]);
+    if (!userId) return;
+
+    let isCancelled = false;
+
     const loadFolders = async () => {
       const { data, error } = await supabase
         .from("folders")
         .select("id, name")
+        .eq("user_id", userId)
         .order("id", { ascending: true });
 
+      if (isCancelled) return;
       if (error) {
         console.error("폴더 목록을 불러오지 못했습니다.", error);
         return;
@@ -46,7 +82,11 @@ export function FolderProvider({ children }: { children: ReactNode }) {
     };
 
     loadFolders();
-  }, []);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [userId]);
 
   const addFolder = async (name: string) => {
     const trimmed = name.trim();

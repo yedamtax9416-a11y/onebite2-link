@@ -53,14 +53,50 @@ export function LinkProvider({ children }: { children: ReactNode }) {
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [isAddingLink, setIsAddingLink] = useState(false);
   const [isUpdatingLink, setIsUpdatingLink] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
 
+  // Track the logged-in user so a login/logout/account switch is reflected
+  // below without a full page reload.
   useEffect(() => {
+    let isMounted = true;
+
+    const applyUser = (nextUserId: string | null) => {
+      if (!isMounted) return;
+      setUserId((prev) => (prev === nextUserId ? prev : nextUserId));
+    };
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      applyUser(session?.user.id ?? null);
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        applyUser(session?.user?.id ?? null);
+      }
+    );
+
+    return () => {
+      isMounted = false;
+      listener.subscription.unsubscribe();
+    };
+  }, []);
+
+  // Reload from scratch every time the current user changes (login, logout,
+  // or switching accounts), scoped to that user's own data only.
+  useEffect(() => {
+    setLinks([]);
+    if (!userId) return;
+
+    let isCancelled = false;
+
     const loadLinks = async () => {
       const { data, error } = await supabase
         .from("links")
         .select("id, title, url, description, folder_id, created_at")
+        .eq("user_id", userId)
         .order("created_at", { ascending: false });
 
+      if (isCancelled) return;
       if (error) {
         console.error("링크 목록을 불러오지 못했습니다.", error);
         return;
@@ -79,7 +115,11 @@ export function LinkProvider({ children }: { children: ReactNode }) {
     };
 
     loadLinks();
-  }, []);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [userId]);
 
   const addLink = async (url: string, folderId: string | null) => {
     const trimmed = url.trim();
