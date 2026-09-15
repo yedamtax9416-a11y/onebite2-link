@@ -143,6 +143,14 @@ export default function SignupForm() {
             로그인
           </Link>
         </p>
+
+        <p className="text-center text-xs text-zinc-400">
+          가입 시{" "}
+          <Link href="/privacy" className="font-semibold hover:underline">
+            개인정보 처리방침
+          </Link>
+          에 동의하는 것으로 간주됩니다.
+        </p>
       </form>
     </>
   );
